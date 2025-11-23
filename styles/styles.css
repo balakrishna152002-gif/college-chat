@@ -1,0 +1,429 @@
+/* Import Google Fonts for a modern, clean look */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* --- Base Styles --- */
+body {
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+    background-color: #1a202c; /* Deep slate gray */
+    color: #e2e8f0; /* Light gray for general text */
+    position: relative; /* Needed for pseudo-element positioning */
+}
+
+/* --- Particle Canvas Background --- */
+#particle-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Place it behind all content */
+    background-color: #1a202c; /* Ensure solid base color */
+}
+
+/* Remove the previous animated gradient background from body::before if it was there */
+body::before {
+    content: none; /* This will remove the pseudo-element background */
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 8px; /* Slightly wider for better usability */
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #2d3748; /* Darker track */
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #4299e1, #3182ce); /* Blue gradient thumb */
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.1); /* Subtle border */
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #3182ce, #4299e1); /* Reverse gradient on hover */
+}
+
+/* --- Layout & Responsiveness --- */
+.hidden { display: none; }
+@media (max-width: 767px) {
+    #chat-window-panel { display: none; }
+    .chat-view #user-list-panel { display: none; }
+    .chat-view #chat-window-panel { display: flex; }
+}
+
+/* --- Animations --- */
+.fade-in {
+    animation: fadeInAnimation 0.5s ease-in-out forwards;
+}
+@keyframes fadeInAnimation {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Typing Indicator */
+.typing-indicator span {
+    height: 8px;
+    width: 8px;
+    margin: 0 1px;
+    background-color: #63b3ed; /* Soft blue for typing dots */
+    display: inline-block;
+    border-radius: 50%;
+    animation: typing-animation 1.4s infinite both;
+}
+.typing-indicator span:nth-child(1) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(2) { animation-delay: 0.4s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.6s; }
+@keyframes typing-animation {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1.0); }
+}
+
+/* --- Shared Component Styles --- */
+/* Auth Container / Main Panels */
+.main-panel {
+    background-color: rgba(45, 55, 72, 0.7); /* Adjusted opacity for more visibility of background */
+    border-radius: 0.75rem; /* Rounded corners */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4); /* Stronger shadow */
+    border: 1px solid rgba(74, 85, 104, 0.3); /* Subtle, defined border */
+    transition: all 0.3s ease; /* Smooth transitions for hover/focus */
+}
+/* Optional: Slight hover effect for panels, if desired */
+.main-panel:hover {
+     /* transform: translateY(-2px); */
+     /* box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5); */
+}
+
+/* Modals */
+.app-modal {
+    background-color: rgba(45, 55, 72, 0.8); /* Adjusted opacity for modals as well */
+    border-radius: 0.75rem;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    color: #e2e8f0;
+    border: 1px solid rgba(74, 85, 104, 0.5); /* More defined border for modals */
+}
+
+/* Input Fields */
+.app-input {
+    background-color: #242c38; /* Darker input background */
+    border: 1px solid #4a5568; /* Subtle border */
+    color: #e2e8f0;
+    padding: 0.75rem 1rem; /* More comfortable padding */
+    border-radius: 0.5rem; /* Slightly more rounded corners */
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s;
+}
+.app-input::placeholder {
+    color: #a0aec0; /* Lighter placeholder */
+}
+.app-input:focus {
+    border-color: #4299e1; /* Blue border on focus */
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.4); /* Larger blue glow on focus */
+    background-color: #2a3442; /* Slightly lighter background on focus */
+    outline: none;
+}
+
+/* Primary Buttons */
+.app-button-primary {
+    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%); /* Blue gradient */
+    color: white;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.5rem; /* More substantial padding */
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 4px 10px rgba(66, 153, 225, 0.3);
+    border: none; /* Ensure no default button border */
+    cursor: pointer;
+}
+.app-button-primary:hover {
+    background: linear-gradient(135deg, #3182ce 0%, #4299e1 100%);
+    box-shadow: 0 6px 15px rgba(66, 153, 225, 0.4);
+    transform: translateY(-2px); /* More pronounced lift */
+}
+
+/* Danger Buttons */
+.app-button-danger {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); /* Red gradient */
+    color: white;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.5rem; /* More substantial padding */
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
+    border: none;
+    cursor: pointer;
+}
+.app-button-danger:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+    box-shadow: 0 6px 15px rgba(239, 68, 68, 0.4);
+    transform: translateY(-2px);
+}
+
+/* Secondary Buttons (for modal cancels, etc.) */
+.app-button-secondary {
+    background-color: #4a5568; /* Dark gray */
+    color: #e2e8f0;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.5rem; /* More substantial padding */
+    transition: background-color 0.2s ease-in-out;
+    border: none;
+    cursor: pointer;
+}
+.app-button-secondary:hover {
+    background-color: #64748b; /* Lighter gray on hover */
+    transform: translateY(-1px); /* Slight lift */
+}
+
+/* Icon Buttons (e.g., attach, emoji) */
+.app-icon-button {
+    background: transparent;
+    border: none;
+    color: #a0aec0; /* Lighter gray */
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+.app-icon-button:hover {
+    color: #4299e1; /* Blue on hover */
+    background-color: rgba(66, 153, 225, 0.1); /* Subtle background */
+    transform: scale(1.1); /* Slight pop */
+}
+
+
+/* Chat Item / Hover */
+.chat-item-wrapper {
+    transition: background-color 0.2s ease-in-out;
+    padding: 0.75rem 1rem; /* More padding */
+    border-bottom: 1px solid #2d3748; /* Darker, more subtle border */
+}
+.chat-item-wrapper:last-child {
+    border-bottom: none; /* No border for the last item */
+}
+.chat-item-wrapper:hover {
+    background-color: rgba(66, 153, 225, 0.1); /* Subtle blue highlight on hover */
+}
+.chat-item-wrapper.selected {
+    background-color: rgba(66, 153, 225, 0.2); /* More prominent blue for selected item */
+    border-left: 3px solid #4299e1; /* Accent bar for selected */
+    padding-left: calc(1rem - 3px); /* Adjust padding due to border */
+}
+
+
+/* User/Group Avatars */
+.user-avatar {
+    width: 2.75rem; /* Slightly larger avatar */
+    height: 2.75rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600; /* Bolder initials */
+    flex-shrink: 0; /* Prevent shrinking */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3); /* Subtle shadow */
+}
+.user-avatar-bg-user {
+    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%); /* Blue gradient for user avatars */
+    color: white;
+}
+.user-avatar-bg-group {
+    background: linear-gradient(135deg, #805ad5 0%, #6b46c1 100%); /* Purple gradient for group avatars */
+    color: white;
+}
+
+/* --- Chat Window Specifics --- */
+.chat-header {
+    background-color: #2d3748; /* Same as main panels */
+    border-bottom: 1px solid #4a5568; /* Subtle border */
+    color: #e2e8f0;
+    padding: 1rem 1.5rem; /* More generous padding */
+}
+
+.chat-input-area {
+    background-color: #2d3748; /* Same as main panels */
+    border-top: 1px solid #4a5568; /* Subtle border */
+    padding: 1rem 1.5rem; /* More generous padding */
+}
+
+/* Message Bubbles */
+.message-bubble {
+    padding: 0.8rem 1.2rem; /* More padding inside bubbles */
+    border-radius: 1.2rem; /* More rounded */
+    word-break: break-word;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); /* Softer, larger shadow */
+    transition: all 0.2s ease-out; /* Smooth transition */
+}
+
+.message-bubble.sender {
+    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%); /* Blue gradient for sender */
+    color: white;
+    border-bottom-right-radius: 0.4rem; /* Small tip corner */
+}
+.message-bubble.receiver {
+    background-color: #4a5568; /* Darker gray for receiver */
+    color: #e2e8f0;
+    border-bottom-left-radius: 0.4rem; /* Small tip corner */
+}
+
+/* Sender Name in Group Messages */
+.message-bubble .sender-name {
+    color: #90cdf4; /* Lighter blue for sender name */
+    font-size: 0.85rem; /* Slightly larger */
+    margin-bottom: 0.3rem; /* More space */
+    font-weight: 500;
+}
+
+/* Reply Preview */
+.reply-preview-container {
+    background-color: #4a5568; /* Darker gray */
+    border-left: 3px solid #63b3ed; /* Light blue border */
+    color: #e2e8f0;
+    padding: 0.6rem 1rem; /* More padding */
+    border-radius: 0.6rem; /* More rounded */
+    font-size: 0.85rem;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+    display: flex; /* Ensure flex for cancel button positioning */
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem; /* Space below preview */
+}
+.reply-preview-container .cancel-btn {
+    color: #ef4444; /* Red close button */
+    font-size: 1.2rem;
+    transition: color 0.2s;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+.reply-preview-container .cancel-btn:hover {
+    color: #f87171;
+}
+.reply-preview-container p {
+    margin: 0; /* Remove default paragraph margins */
+}
+.reply-preview-container p.text-xs {
+    color: #90cdf4; /* Lighter blue for "Replying to" text */
+    font-weight: 400;
+}
+.reply-preview-container p.text-sm.italic {
+    font-style: italic;
+    color: #e2e8f0;
+}
+
+
+/* File Preview */
+.file-preview-container {
+    background-color: #4a5568;
+    padding: 0.6rem 1rem; /* More padding */
+    border-radius: 0.6rem;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem; /* Space below preview */
+}
+.file-preview-container .file-icon {
+    color: #63b3ed; /* Blue icon */
+    margin-right: 0.5rem;
+    font-size: 1.1rem;
+}
+.file-preview-container .file-name {
+    color: #e2e8f0;
+    flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.file-preview-container .remove-btn {
+    color: #ef4444;
+    padding: 0.25rem;
+    border-radius: 50%;
+    transition: background-color 0.2s, color 0.2s;
+}
+.file-preview-container .remove-btn:hover {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+}
+
+/* Message Actions (Reply, Pin, Delete) */
+.message-actions {
+    position: absolute;
+    top: -18px; /* Slightly higher */
+    right: 10px; /* Slightly further right */
+    display: flex;
+    align-items: center;
+    gap: 0.3rem; /* Tighter spacing */
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    background: #313b4a; /* Slightly lighter than bubble for contrast */
+    border-radius: 9999px; /* Pill shape */
+    padding: 0.25rem 0.6rem; /* Smaller padding */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    border: 1px solid #4a5568;
+    z-index: 10; /* Ensure it's above other messages */
+}
+.message-bubble.group:hover .message-actions,
+.message-bubble.direct:hover .message-actions {
+    opacity: 1;
+    transform: translateY(-5px);
+}
+.message-actions button {
+    color: #a0aec0; /* Light gray for icons */
+    padding: 0.3rem;
+    border-radius: 50%;
+    transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+    font-size: 0.75rem; /* Smaller icons for compact look */
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+.message-actions button:hover {
+    background-color: rgba(66, 153, 225, 0.15); /* Blue hover background */
+    color: #e0f2fe; /* Brighter text on hover */
+}
+.message-actions .pin-message-btn .fa-thumbtack.text-blue-600 {
+    color: #38bdf8; /* Active pin color */
+}
+.message-actions .delete-message-btn:hover {
+    color: #f87171; /* Red hover */
+}
+.message-actions .reply-message-btn:hover {
+    color: #60a5fa; /* Blue hover */
+}
+
+
+/* Pinned Messages Alert */
+.pinned-message-alert {
+    background-color: #3a475a; /* Darker background for pinned */
+    border-left: 4px solid #f6e05e; /* Yellow accent */
+    color: #f6e05e; /* Yellow text */
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+.pinned-message-alert .pin-icon {
+    color: #f6e05e;
+}
+.pinned-message-alert .message-text {
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.pinned-message-alert .unpin-btn {
+    color: #f6e05e;
+    background: none;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+.pinned-message-alert .unpin-btn:hover {
+    background-color: rgba(246, 224, 94, 0.2);
+}
