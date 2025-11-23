@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Connect</title> <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
+    </head>
+<body class="text-gray-200">
+    <canvas id="particle-canvas"></canvas> <div id="auth-container" class="flex items-center justify-center min-h-screen p-4">
+        <div class="w-full max-w-md p-8 space-y-6 rounded-lg main-panel fade-in">
+            <div class="text-center">
+                <i class="fas fa-mountain text-5xl text-blue-400"></i> <h2 class="mt-4 text-3xl font-bold text-white">College Connect</h2> <p class="text-gray-400">Begin Your Ascent</p> </div>
+            <div id="login-form-container"><form id="loginForm" class="mt-8 space-y-4">
+                <input type="text" name="login_credential" placeholder="Roll Number or Email" class="w-full px-4 py-3 rounded-lg app-input" required />
+                <input type="password" name="password" placeholder="Password" class="w-full px-4 py-3 rounded-lg app-input" required />
+                <button type="submit" class="w-full py-3 app-button-primary">Login</button>
+                <p id="login-error" class="text-sm text-center text-red-400 hidden"></p>
+            </form></div>
+            <div id="signup-form-container" class="hidden"><form id="signupForm" class="mt-8 space-y-4">
+                <input type="text" name="fullName" placeholder="Full Name" class="w-full px-4 py-3 rounded-lg app-input" required />
+                <input type="text" name="rollNumber" placeholder="Roll Number (e.g., 21jki225)" class="w-full px-4 py-3 rounded-lg app-input" required />
+                <input type="email" name="email" placeholder="Email" class="w-full px-4 py-3 rounded-lg app-input" required />
+                <input type="password" name="password" placeholder="Password" class="w-full px-4 py-3 rounded-lg app-input" required />
+                <select name="course" class="w-full px-4 py-3 rounded-lg app-input" required>
+                    <option value="" disabled selected class="text-gray-900">Course</option>
+                    <option value="BCA" class="text-gray-900">BCA</option>
+                    <option value="BBA" class="text-gray-900">BBA</option>
+                </select>
+                <select name="year" class="w-full px-4 py-3 rounded-lg app-input" required>
+    <option value="" disabled selected class="text-gray-900">Year</option>
+    <option value="1" class="text-gray-900">1st</option>
+    <option value="2" class="text-gray-900">2nd</option>
+    <option value="3" class="text-gray-900">3rd</option>
+    <option value="4" class="text-gray-900">4th</option>
+    <option value="Alumni" class="text-gray-900">Alumni</option>
+</select>
+<select name="college" class="w-full px-4 py-3 rounded-lg app-input" required>
+    <option value="" disabled selected class="text-gray-900">Select College</option>
+    <option value="Marian College Kuttikkanam (Autonomous)" class="text-gray-900">Marian College Kuttikkanam (Autonomous)</option>
+
+   
+    </select>
+                <button type="submit" class="w-full py-3 app-button-primary">Sign Up</button>
+                <p id="signup-error" class="text-sm text-center text-red-400 hidden"></p>
+            </form></div>
+            <p class="text-center text-sm text-gray-400"><span id="auth-toggle-text">Don't have an account?</span><button id="auth-toggle-btn" class="ml-1 font-semibold text-blue-400 hover:underline">Login</button></p>
+        </div>
+    </div>
+
+    <div id="chat-dashboard" class="hidden h-screen p-4">
+        <div class="flex h-full rounded-2xl shadow-2xl main-panel overflow-hidden text-white">
+            <div id="user-list-panel" class="user-list-panel flex flex-col w-full md:w-1/3 lg:w-1/4 main-panel rounded-r-none border-r border-gray-600">
+                <div class="p-4 border-b border-gray-600">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-bold text-white">Chats</h2>
+                        <button id="create-group-btn" title="Create Group" class="p-2 rounded-full text-gray-400 hover:bg-gray-700 hover:text-white"><i class="fas fa-users"></i></button>
+                    </div>
+                    <div class="mt-4 relative">
+                        <input type="text" id="chat-search-input" placeholder="Search chats..." class="w-full pl-10 pr-4 app-input text-sm">
+                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                    <div class="mt-4">
+                        <label for="sort-select" class="text-xs font-medium text-gray-400 uppercase">Sort by</label>
+                        <select id="sort-select" class="w-full mt-1 px-2 py-1.5 rounded-md text-sm app-input cursor-pointer">
+                            <option class="text-gray-900" value="name">Name</option>
+                            <option class="text-gray-900" value="year">Year</option>
+                            <option class="text-gray-900" value="course">Course</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="p-4 border-b border-gray-600">
+                    <div id="current-user-profile" class="text-sm text-gray-400"></div>
+                </div>
+                <div id="chat-list" class="flex-1 overflow-y-auto custom-scrollbar"></div>
+                <div class="p-4 border-t border-gray-600 text-center">
+                    <button id="logout-btn" class="w-full px-4 py-2 app-button-danger">Logout</button>
+                    <p class="mt-4 text-xs text-gray-500">A BK Project V 1.1.3 </p>
+                </div>
+            </div>
+            <div id="chat-window-panel" class="chat-window-panel md:flex flex-col flex-1 main-panel rounded-l-none">
+                <div id="chat-window-container" class="flex flex-col h-full">
+                    <div class="flex items-center justify-center h-full">
+                        <div class="text-center text-gray-500">
+                            <i class="fas fa-comments text-6xl"></i>
+                            <p class="mt-4 text-lg">Select a conversation</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="create-group-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-20">
+        <div class="app-modal rounded-lg shadow-xl w-full max-w-md">
+            <div class="p-4 border-b border-gray-600 flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-white">Create New Group</h3>
+                <button id="close-modal-btn" class="p-2 rounded-full text-gray-400 hover:bg-gray-700 hover:text-white">&times;</button>
+            </div>
+            <div class="p-4"><form id="createGroupForm">
+                <input type="text" id="group-name-input" placeholder="Enter group name..." class="w-full px-4 py-2 rounded-lg mb-4 app-input" required>
+                <div class="relative mb-2">
+                    <input type="text" id="modal-search-input" placeholder="Search for members..." class="w-full pl-10 pr-4 py-2 rounded-lg text-sm app-input">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                </div>
+                <h4 class="font-semibold mb-2">Select Members</h4>
+                <div id="modal-user-list" class="h-48 overflow-y-auto border border-gray-600 rounded-lg p-2 app-input"></div>
+                <div class="mt-4 flex justify-end">
+                    <button type="submit" class="px-4 py-2 app-button-primary">Create Group</button>
+                </div>
+            </form></div>
+        </div>
+    </div>
+    <div id="group-members-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-20">
+        <div class="app-modal rounded-lg shadow-xl w-full max-w-md">
+            <div class="p-4 border-b border-gray-600 flex justify-between items-center">
+                <h3 id="modal-group-name" class="text-lg font-semibold text-white">Group Members</h3>
+                <button id="close-members-modal-btn" class="p-2 rounded-full text-gray-400 hover:bg-gray-700 hover:text-white">&times;</button>
+            </div>
+            <div id="modal-member-list" class="p-4 max-h-96 overflow-y-auto"></div>
+        </div>
+    </div>
+    <div id="user-profile-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-20">
+        <div class="app-modal rounded-lg shadow-xl w-full max-w-sm text-center p-6">
+            <div id="modal-profile-content"></div>
+            <button id="close-profile-modal-btn" class="mt-4 px-4 py-2 app-button-primary">Close</button>
+        </div>
+    </div>
+    <div id="delete-message-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-20">
+        <div class="app-modal rounded-lg shadow-xl w-full max-w-sm text-center p-6">
+            <h3 class="text-lg font-semibold mb-4">Delete Message?</h3>
+            <div class="space-y-2">
+                <button id="delete-for-me-btn" class="w-full px-4 py-2 app-button-secondary">Delete for Me</button>
+                <button id="delete-for-everyone-btn" class="w-full px-4 py-2 app-button-danger">Delete for Everyone</button>
+                <button id="cancel-delete-btn" class="w-full mt-2 px-4 py-2 app-button-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import 'https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js';
+        
+        // Moved API call functions outside DOMContentLoaded for broader accessibility
+        const apiCall = async (endpoint, options) => {
+            const baseUrl = 'http://localhost/college_chat/';
+            try {
+                const url = `${baseUrl}${endpoint}`;
+                const response = await fetch(url, options);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return await response.json();
+            } catch (error) { console.error(`API call to ${endpoint} failed:`, error); return { success: false, message: 'A network error occurred.' }; }
+        };
+
+        const jsonApiCall = (endpoint, method = 'GET', body = null) => {
+            const [path, queryString] = endpoint.split('?');
+            const fullEndpoint = `${path}.php${queryString ? `?${queryString}` : ''}`;
+            const options = { method, headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : null };
+            return apiCall(fullEndpoint, options);
+        };
+
+        const fileApiCall = (endpoint, formData) => {
+            const fullEndpoint = `${endpoint}.php`;
+            return apiCall(fullEndpoint, { method: 'POST', body: formData });
+        };
+
+        // All main interactive functions moved inside DOMContentLoaded for correct scoping
+        document.addEventListener('DOMContentLoaded', () => {
+            // init3DBackground removed as per new theme
+            // const init3DBackground = () => { ... };
+            // init3DBackground(); // Removed call
+
+            let currentUser = null, selectedConversation = null, messagePollingInterval = null, unreadPollingInterval = null, typingPollingInterval = null;
+            let allUsersForModal = [];
+            let typingTimeout = null;
+            let attachedFile = null;
+            let messageToDelete = {};
+
+            const authContainer = document.getElementById('auth-container'), chatDashboard = document.getElementById('chat-dashboard'),
+                userListPanel = document.getElementById('user-list-panel'), chatWindowPanel = document.getElementById('chat-window-panel'),
+                loginFormContainer = document.getElementById('login-form-container'), signupFormContainer = document.getElementById('signup-form-container'),
+                authToggleBtn = document.getElementById('auth-toggle-btn'), authToggleText = document.getElementById('auth-toggle-text'),
+                sortSelect = document.getElementById('sort-select'), createGroupBtn = document.getElementById('create-group-btn'),
+                createGroupModal = document.getElementById('create-group-modal'), closeModalBtn = document.getElementById('close-modal-btn'),
+                createGroupForm = document.getElementById('createGroupForm'), chatSearchInput = document.getElementById('chat-search-input'),
+                modalSearchInput = document.getElementById('modal-search-input'),
+                groupMembersModal = document.getElementById('group-members-modal'), closeMembersModalBtn = document.getElementById('close-members-modal-btn'),
+                userProfileModal = document.getElementById('user-profile-modal'), closeProfileModalBtn = document.getElementById('close-profile-modal-btn'),
+                deleteMessageModal = document.getElementById('delete-message-modal'), deleteForMeBtn = document.getElementById('delete-for-me-btn'),
+                deleteForEveryoneBtn = document.getElementById('delete-for-everyone-btn'), cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+            
+            const debounce = (func, delay) => { let timeout; return (...args) => { clearTimeout(timeout); timeout = setTimeout(() => func.apply(this, args), delay); }; };
+
+            const toggleAuthForms = () => {
+                const isLoginVisible = !loginFormContainer.classList.contains('hidden');
+                loginFormContainer.classList.toggle('hidden'); signupFormContainer.classList.toggle('hidden');
+                authToggleText.textContent = isLoginVisible ? "Already have an account?" : "Don't have an account?";
+                authToggleBtn.textContent = isLoginVisible ? "Login" : "Sign up";
+            };
+            const showDashboard = user => {
+                currentUser = user;
+                authContainer.classList.add('hidden');
+                chatDashboard.classList.remove('hidden');
+                loadDashboard();
+                clearInterval(unreadPollingInterval);
+                unreadPollingInterval = setInterval(loadChatList, 15000);
+            };
+            const showAuth = () => {
+                currentUser = null; selectedConversation = null;
+                clearInterval(messagePollingInterval); clearInterval(unreadPollingInterval); clearInterval(typingPollingInterval);
+                chatDashboard.classList.add('hidden'); authContainer.classList.remove('hidden');
+            };
+            const showUserList = () => chatDashboard.classList.remove('chat-view');
+
+            authToggleBtn.addEventListener('click', toggleAuthForms);
+            sortSelect.addEventListener('change', () => loadChatList());
+            chatSearchInput.addEventListener('input', debounce(() => loadChatList(), 300));
+            
+            createGroupBtn.addEventListener('click', async () => {
+                const result = await jsonApiCall('get_users');
+                if(result.success) {
+                    allUsersForModal = result.users;
+                    renderModalUserList(allUsersForModal);
+                    createGroupModal.classList.remove('hidden');
+                }
+            });
+            modalSearchInput.addEventListener('input', () => {
+                const searchTerm = modalSearchInput.value.toLowerCase();
+                const filteredUsers = allUsersForModal.filter(user => user.fullName.toLowerCase().includes(searchTerm));
+                renderModalUserList(filteredUsers);
+            });
+            const renderModalUserList = (users) => {
+                document.getElementById('modal-user-list').innerHTML = users.map(user => `
+                    <label class="flex items-center p-2 hover:bg-sky-500/20 rounded-md cursor-pointer">
+                        <input type="checkbox" name="members" value="${user.uid}" class="mr-3 h-4 w-4 text-blue-400 border-gray-600 rounded focus:ring-blue-400">
+                        <span>${user.fullName}</span>
+                    </label>`).join('');
+            };
+
+            closeModalBtn.addEventListener('click', () => createGroupModal.classList.add('hidden'));
+            closeMembersModalBtn.addEventListener('click', () => groupMembersModal.classList.add('hidden'));
+            closeProfileModalBtn.addEventListener('click', () => userProfileModal.classList.add('hidden'));
+            cancelDeleteBtn.addEventListener('click', () => deleteMessageModal.classList.add('hidden'));
+
+            createGroupForm.addEventListener('submit', async e => {
+                e.preventDefault();
+                const groupName = document.getElementById('group-name-input').value;
+                const members = [...e.target.members].filter(cb => cb.checked).map(cb => cb.value);
+                const result = await jsonApiCall('create_group', 'POST', { groupName, members });
+                if(result.success) {
+                    alert('Group created!');
+                    createGroupModal.classList.add('hidden');
+                    e.target.reset();
+                    loadChatList();
+                } else { alert(`Error: ${result.message}`); }
+            });
+
+            document.getElementById('loginForm').addEventListener('submit', async e => {
+                e.preventDefault();
+                const result = await jsonApiCall('login', 'POST', Object.fromEntries(new FormData(e.target)));
+                if (result.success) { document.getElementById('login-error').classList.add('hidden'); showDashboard(result.user); }
+                else { document.getElementById('login-error').textContent = result.message || 'Login failed.'; document.getElementById('login-error').classList.remove('hidden'); }
+            });
+            document.getElementById('signupForm').addEventListener('submit', async e => {
+                e.preventDefault();
+                const data = Object.fromEntries(new FormData(e.target));
+                if (!/^\d{2}[a-zA-Z]{3}\d{3}$/.test(data.rollNumber)) {
+                    document.getElementById('signup-error').textContent = 'Invalid Roll Number format.'; document.getElementById('signup-error').classList.remove('hidden'); return;
+                }
+                const result = await jsonApiCall('register', 'POST', data);
+                if (result.success) { alert(result.message); toggleAuthForms(); e.target.reset(); }
+                else { document.getElementById('signup-error').textContent = result.message || 'Signup failed.'; document.getElementById('signup-error').classList.remove('hidden'); }
+            });
+            document.getElementById('logout-btn').addEventListener('click', () => jsonApiCall('logout').then(showAuth));
+
+            const getInitials = name => {
+                if (!name) return ''; const names = name.split(' ');
+                return names[0].substring(0, 1).toUpperCase() + (names.length > 1 ? names[names.length - 1].substring(0, 1).toUpperCase() : '');
+            };
+            const loadDashboard = () => {
+                document.getElementById('current-user-profile').innerHTML = `<p>Welcome, <strong class="text-blue-400">${currentUser.fullName}</strong></p><p>Course: ${currentUser.course} - ${currentUser.year === 'Alumni' ? 'Alumni' : `Year ${currentUser.year}`}</p>`;
+                loadChatList();
+            };
+
+            const loadChatList = async () => {
+                const sortBy = sortSelect.value;
+                const searchTerm = chatSearchInput.value;
+                const [usersResult, groupsResult] = await Promise.all([jsonApiCall(`get_users?sortBy=${sortBy}&search=${searchTerm}`), jsonApiCall('get_groups')]);
+                const chatListEl = document.getElementById('chat-list');
+                let html = '';
+
+                const createBadge = count => count > 0 ? `<span class="ml-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">${count}</span>` : '';
+                const createDeleteBtn = (uid, isGroupAdmin) => isGroupAdmin ? `<button data-group-uid="${uid}" class="delete-group-btn ml-auto p-2 text-gray-400 hover:text-red-500 rounded-full"><i class="fas fa-trash-alt"></i></button>` : '';
+
+                if (groupsResult.success && groupsResult.groups.length > 0) {
+                    const filteredGroups = groupsResult.groups.filter(g => g.group_name.toLowerCase().includes(searchTerm.toLowerCase()));
+                    if(filteredGroups.length > 0) {
+                        html += '<h3 class="p-3 text-sm font-semibold text-gray-400 uppercase">Groups</h3>';
+                        html += filteredGroups.map(group => {
+                            const isGroupAdmin = group.user_role === 'admin';
+                            return `
+                            <div class="chat-item-wrapper flex items-center p-3 border-b border-gray-700">
+                                <div data-uid="${group.group_uid}" data-name="${group.group_name}" data-type="group" data-user-role="${group.user_role}" class="chat-item flex-grow flex items-center cursor-pointer">
+                                    <div class="user-avatar user-avatar-bg-group text-white flex items-center justify-center font-bold mr-3"><i class="fas fa-users"></i></div>
+                                    <div class="flex-grow"><p class="font-semibold">${group.group_name}</p></div>
+                                    ${createBadge(group.unread_count)}
+                                </div>
+                                ${createDeleteBtn(group.group_uid, isGroupAdmin)}
+                            </div>`
+                        }).join('');
+                    }
+                }
+                if (usersResult.success && usersResult.users.length > 0) {
+                    html += '<h3 class="p-3 text-sm font-semibold text-gray-400 uppercase">Direct Messages</h3>';
+                    html += usersResult.users.map(user => `
+                        <div class="chat-item-wrapper flex items-center p-3 border-b border-gray-700">
+                            <div data-uid="${user.uid}" data-name="${user.fullName}" data-type="user" data-details="${user.course} - ${user.year === 'Alumni' ? 'Alumni' : `Year ${user.year}`}" class="chat-item flex-grow flex items-center cursor-pointer">
+                                <div class="user-avatar user-avatar-bg-user text-white flex items-center justify-center font-bold mr-3 user-avatar">${getInitials(user.fullName)}</div>
+                                <div class="flex-grow"><p class="font-semibold">${user.fullName}</p><p class="text-xs text-gray-400">${user.course} - ${user.year === 'Alumni' ? 'Alumni' : `Year ${user.year}`}</p></div>
+                                ${createBadge(user.unread_count)}
+                            </div>
+                        </div>`).join('');
+                }
+                chatListEl.innerHTML = html || `<p class="p-4 text-center text-gray-500">No results found.</p>`;
+                
+                document.querySelectorAll('.chat-item').forEach(item => item.addEventListener('click', () => selectConversation(item.dataset)));
+                document.querySelectorAll('.delete-group-btn').forEach(btn => btn.addEventListener('click', handleDeleteGroup));
+                document.querySelectorAll('.user-avatar').forEach(avatar => avatar.parentElement.addEventListener('click', e => {
+                    if(e.target === avatar) { 
+                        e.stopPropagation();
+                        showUserProfile(avatar.parentElement.dataset);
+                    }
+                }));
+            };
+
+            const showUserProfile = (userData) => {
+                document.getElementById('modal-profile-content').innerHTML = `
+                    <div class="w-24 h-24 user-avatar user-avatar-bg-user text-white flex items-center justify-center font-bold text-4xl mx-auto">${getInitials(userData.name)}</div>
+                    <h3 class="text-2xl font-bold mt-4">${userData.name}</h3>
+                    <p class="text-gray-400 mt-2">${userData.details}</p>
+                `;
+                userProfileModal.classList.remove('hidden');
+            };
+
+            const handleDeleteGroup = async (e) => {
+                e.stopPropagation();
+                const groupUid = e.currentTarget.dataset.groupUid;
+                if (confirm('Are you sure you want to permanently delete this group? This action cannot be undone.')) {
+                    const result = await jsonApiCall('delete_group', 'POST', { group_uid: groupUid });
+                    if (result.success) {
+                        alert('Group deleted.');
+                        if(selectedConversation && selectedConversation.uid === groupUid) {
+                            document.getElementById('chat-window-container').innerHTML = `<div class="flex items-center justify-center h-full"><div class="text-center text-gray-500"><i class="fas fa-comments text-6xl"></i><p class="mt-4 text-lg">Select a conversation</p></div></div>`;
+                            selectedConversation = null;
+                            showUserList();
+                        }
+                        loadChatList();
+                    } else {
+                        alert(`Error: ${result.message}`);
+                    }
+                }
+            };
+
+            const selectConversation = data => {
+                selectedConversation = data;
+                jsonApiCall('mark_as_read', 'POST', { conversation_id: data.uid }).then(() => {
+                    const badge = document.querySelector(`.chat-item-wrapper .chat-item[data-uid='${data.uid}'] span`);
+                    if(badge) badge.remove();
+                });
+                chatDashboard.classList.add('chat-view');
+                document.querySelectorAll('.chat-item-wrapper').forEach(item => item.classList.remove('selected'));
+                const wrapper = document.querySelector(`.chat-item-wrapper .chat-item[data-uid='${data.uid}']`)?.parentElement;
+                if(wrapper) wrapper.classList.add('selected');
+                loadChatWindow();
+            };
+
+            const handleViewMembers = async () => {
+                if (!selectedConversation || selectedConversation.type !== 'group') return;
+                const result = await jsonApiCall(`get_group_members?group_uid=${selectedConversation.uid}`);
+                const memberListEl = document.getElementById('modal-member-list');
+                document.getElementById('modal-group-name').textContent = `Members of ${selectedConversation.name}`;
+                if(result.success) {
+                    const isCurrentUserGroupAdmin = selectedConversation.userRole === 'admin';
+                    memberListEl.innerHTML = result.members.map(member => {
+                        const isAdmin = member.role === 'admin';
+                        const removeButton = isCurrentUserGroupAdmin && !isAdmin ? `<button data-member-uid="${member.uid}" class="remove-member-btn ml-auto p-2 text-gray-400 hover:text-red-500 rounded-full"><i class="fas fa-times-circle"></i></button>` : '';
+                        return `
+                        <div class="flex items-center p-2 border-b border-gray-600">
+                            <div class="user-avatar ${member.role === 'admin' ? 'user-avatar-bg-group' : 'user-avatar-bg-user'} text-white flex items-center justify-center font-bold mr-3">${getInitials(member.fullName)}</div>
+                            <div class="flex-grow">
+                                <p class="font-semibold">${member.fullName} ${isAdmin ? '<span class="text-xs bg-blue-500 text-white px-2 py-0.5 rounded-full ml-2">Admin</span>' : ''}</p>
+                                <p class="text-xs text-gray-400">${member.course} - ${member.year === 'Alumni' ? 'Alumni' : `Year ${member.year}`}</p>
+                            </div>
+                            ${removeButton}
+                        </div>`
+                    }).join('');
+                    document.querySelectorAll('.remove-member-btn').forEach(btn => btn.addEventListener('click', handleRemoveMember));
+                    groupMembersModal.classList.remove('hidden');
+                }
+            };
+            
+            const handleRemoveMember = async (e) => {
+                e.stopPropagation();
+                const memberUid = e.currentTarget.dataset.memberUid;
+                const groupUid = selectedConversation.uid;
+
+                if (confirm('Are you sure you want to remove this member from the group?')) {
+                    const result = await jsonApiCall('remove_group_member', 'POST', { group_uid: groupUid, member_uid: memberUid });
+                    if (result.success) {
+                        alert('Member removed.');
+                        handleViewMembers();
+                    } else {
+                        alert(`Error: ${result.message}`);
+                    }
+                }
+            };
+
+            const updateTypingStatus = async (isTyping) => {
+                if (!selectedConversation || selectedConversation.type === 'group') return; 
+                await jsonApiCall('typing_status', 'POST', {
+                    recipient_uid: selectedConversation.uid,
+                    is_typing: isTyping,
+                });
+            };
+
+            const loadChatWindow = () => {
+                const isGroup = selectedConversation.type === 'group';
+                const headerDetails = isGroup ? `<p class="text-sm text-gray-400">Group Chat</p>` : `<p class="text-sm text-gray-400">${selectedConversation.details}</p>`;
+                const avatar = isGroup ? `<div class="user-avatar user-avatar-bg-group text-white flex items-center justify-center font-bold mr-3"><i class="fas fa-users"></i></div>` : `<div class="user-avatar user-avatar-bg-user text-white flex items-center justify-center font-bold mr-3">${getInitials(selectedConversation.name)}</div>`;
+                const membersButton = isGroup ? `<button id="view-members-btn" title="View Members" class="ml-auto app-icon-button"><i class="fas fa-info-circle"></i></button>` : '';
+                
+
+                document.getElementById('chat-window-container').innerHTML = `
+                    <div class="chat-header flex items-center shadow-md">
+                        <button id="back-to-users-btn" class="md:hidden mr-4 app-icon-button"><i class="fas fa-arrow-left"></i></button>
+                        ${avatar}
+                        <div class="flex-grow"><h3 class="text-lg font-semibold">${selectedConversation.name}</h3>${headerDetails}</div>
+                        ${membersButton}
+                    </div>
+                    <div id="pinned-messages-container" class="hidden mb-4">
+                        <h4 class="font-semibold text-sm mb-1">Pinned Messages:</h4>
+                        <div id="pinned-messages-list" class="space-y-1 text-sm">
+                            </div>
+                    </div>
+                    <div id="messages-area" class="flex-1 p-4 overflow-y-auto custom-scrollbar"></div>
+                    <div id="typing-indicator-container" class="h-6 px-4"></div>
+                    <div class="relative chat-input-area">
+                        <div id="reply-preview-container" class="hidden mb-2"></div> 
+                        <div id="file-preview-container" class="hidden mb-2"></div>
+                        <div id="emoji-picker-container" class="hidden absolute bottom-20 right-4 z-10">
+                            <emoji-picker class="dark"></emoji-picker>
+                        </div>
+                        <form id="sendMessageForm" class="flex items-center">
+                            <input type="file" id="file-input" class="hidden">
+                            <button type="button" id="attach-btn" class="app-icon-button"><i class="fas fa-paperclip"></i></button>
+                            <button type="button" id="emoji-btn" class="app-icon-button"><i class="fas fa-smile"></i></button>
+                            <input type="text" id="message-input" placeholder="Type a message..." class="flex-1 rounded-full app-input" autocomplete="off" />
+                            <button type="submit" class="ml-3 w-10 h-10 flex items-center justify-center app-button-primary rounded-full"><i class="fas fa-paper-plane"></i></button>
+                        </form>
+                    </div>`;
+                
+                document.getElementById('back-to-users-btn').addEventListener('click', showUserList);
+                if(isGroup) {
+                    document.getElementById('view-members-btn').addEventListener('click', handleViewMembers);
+                }
+                document.getElementById('sendMessageForm').addEventListener('submit', handleSendMessage);
+                
+                const messageInput = document.getElementById('message-input');
+                messageInput.addEventListener('input', () => {
+                    clearTimeout(typingTimeout);
+                    updateTypingStatus(true);
+                    typingTimeout = setTimeout(() => updateTypingStatus(false), 2000);
+                });
+
+                document.getElementById('attach-btn').addEventListener('click', () => document.getElementById('file-input').click());
+                document.getElementById('file-input').addEventListener('change', handleFileSelect);
+
+                const emojiBtn = document.getElementById('emoji-btn');
+                const emojiPickerContainer = document.getElementById('emoji-picker-container');
+                emojiBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    emojiPickerContainer.classList.toggle('hidden');
+                });
+                document.querySelector('emoji-picker').addEventListener('emoji-click', event => {
+                    messageInput.value += event.detail.unicode;
+                });
+                document.addEventListener('click', (e) => {
+                    if (emojiPickerContainer && !emojiPickerContainer.contains(e.target) && !emojiBtn.contains(e.target)) {
+                        emojiPickerContainer.classList.add('hidden');
+                    }
+                });
+
+                clearInterval(messagePollingInterval);
+                clearInterval(typingPollingInterval);
+                loadMessages();
+                messagePollingInterval = setInterval(loadMessages, 3000);
+                if (!isGroup) {
+                    typingPollingInterval = setInterval(checkTypingStatus, 2000);
+                }
+            };
+
+            const handleFileSelect = (e) => {
+                const file = e.target.files[0];
+                if (!file) {
+                    attachedFile = null;
+                    document.getElementById('file-preview-container').classList.add('hidden'); // Hide if no file selected
+                    return;
+                }
+                attachedFile = file;
+                const filePreviewContainer = document.getElementById('file-preview-container');
+                filePreviewContainer.innerHTML = `
+                    <div class="flex items-center file-preview-container">
+                        <i class="fas fa-file-alt file-icon"></i>
+                        <span class="text-sm file-name">${file.name}</span>
+                        <button id="remove-file-btn" class="p-1 remove-btn">&times;</button>
+                    </div>`;
+                filePreviewContainer.classList.remove('hidden');
+                document.getElementById('remove-file-btn').addEventListener('click', () => {
+                    attachedFile = null;
+                    document.getElementById('file-input').value = '';
+                    filePreviewContainer.classList.add('hidden');
+                });
+            };
+
+            const checkTypingStatus = async () => {
+                if (!selectedConversation || selectedConversation.type === 'group') return;
+                const result = await jsonApiCall(`typing_status?other_user_id=${selectedConversation.uid}`);
+                const typingContainer = document.getElementById('typing-indicator-container');
+                if (result.success && result.is_typing) {
+                    typingContainer.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
+                } else {
+                    typingContainer.innerHTML = '';
+                }
+            };
+
+            // renderMessageContent moved inside DOMContentLoaded for correct scoping
+            const renderMessageContent = (msg, isSender, messageType) => {
+                if (msg.is_deleted == 1) {
+                    return `<p class="text-sm italic text-gray-500">This message was deleted</p>`;
+                }
+                
+                let content = '';
+                if(msg.message_text) {
+                    content += `<p class="text-sm">${msg.message_text.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>`;
+                }
+                if(msg.file_path) {
+                    const isImage = /\.(jpe?g|png|gif)$/i.test(msg.original_file_name);
+                    if(isImage) {
+                        content += `<a href="${msg.file_path}" target="_blank" rel="noopener noreferrer"><img src="${msg.file_path}" class="max-w-xs rounded-lg my-2"></a>`;
+                    }
+                    content += `
+                        <a href="${msg.file_path}" download="${msg.original_file_name}" class="flex items-center p-2 mt-1 bg-gray-700 rounded-lg hover:bg-gray-600">
+                            <i class="fas fa-download text-gray-400 mr-2"></i>
+                            <span class="text-sm text-gray-200">${msg.original_file_name}</span>
+                        </a>`;
+                }
+                
+                // Pin button - ensure isPinnedStatus is always 0 or 1
+                const isPinnedStatus = (msg.is_pinned === 1 || msg.is_pinned === true) ? 1 : 0; 
+                const pinIcon = isPinnedStatus == 1 ? 'fa-thumbtack text-blue-600' : 'fa-thumbtack text-gray-500';
+                const pinTitle = isPinnedStatus == 1 ? 'Unpin Message' : 'Pin Message';
+                const pinBtn = isSender ? `<button data-message-id="${msg.id}" data-message-type="${messageType}" data-is-pinned="${isPinnedStatus}" title="${pinTitle}" class="pin-message-btn"><i class="fas ${pinIcon}"></i></button>` : '';
+
+                let replyBtn = '';
+                if (msg.is_deleted != 1) {
+                    const replyMessageContent = msg.message_text ? msg.message_text : (msg.original_file_name ? `[File] ${msg.original_file_name}` : 'Deleted message');
+                    const senderNameForReply = messageType === 'group' ? msg.sender_name : (isSender ? 'You' : selectedConversation.name);
+                    replyBtn = `<button data-message-id="${msg.id}" data-message-text="${replyMessageContent}" data-sender-name="${senderNameForReply}" class="reply-message-btn"><i class="fas fa-reply"></i></button>`;
+                }
+
+                const deleteBtn = isSender && msg.is_deleted != 1 ? `<button data-message-id="${msg.id}" data-message-type="${messageType}" class="delete-message-btn"><i class="fas fa-times"></i></button>` : '';
+
+                const actionButtons = pinBtn + replyBtn + deleteBtn;
+                let actionsContainer = '';
+                if (actionButtons) {
+                    actionsContainer = `<div class="message-actions">${actionButtons}</div>`;
+                }
+
+                return content + actionsContainer;
+            };
+
+            // handlePinMessage moved inside DOMContentLoaded for correct scoping
+            const handlePinMessage = async (e) => {
+                e.stopPropagation();
+                const btn = e.currentTarget;
+                const messageId = btn.dataset.messageId;
+                const messageType = btn.dataset.messageType;
+                const isCurrentlyPinned = btn.dataset.isPinned === '1'; 
+                const newPinStatus = !isCurrentlyPinned;
+
+                const result = await jsonApiCall('pin_message', 'POST', {
+                    message_id: messageId,
+                    message_type: messageType,
+                    is_pinned: newPinStatus
+                });
+
+                if (result.success) {
+                    loadMessages(); 
+                } else {
+                    alert(`Error: ${result.message}`);
+                }
+            };
+
+            // handleReplyButtonClick moved inside DOMContentLoaded for correct scoping
+            const handleReplyButtonClick = (e) => {
+                const messageId = e.currentTarget.dataset.messageId;
+                const messageText = e.currentTarget.dataset.messageText;
+                const senderName = e.currentTarget.dataset.senderName;
+
+                const replyPreview = document.getElementById('reply-preview-container');
+                replyPreview.innerHTML = `
+                    <div class="reply-preview-container flex items-center gap-2">
+                        <p class="text-xs text-gray-200">Replying to ${senderName}: "${messageText.substring(0, 50)}${messageText.length > 50 ? '...' : ''}"</p>
+                        <button id="cancel-reply-btn" class="cancel-btn ml-auto">&times;</button>
+                    </div>
+                `;
+                replyPreview.classList.remove('hidden');
+
+                document.getElementById('sendMessageForm').dataset.replyToId = messageId;
+
+                document.getElementById('cancel-reply-btn').addEventListener('click', () => {
+                    replyPreview.classList.add('hidden');
+                    delete document.getElementById('sendMessageForm').dataset.replyToId;
+                });
+
+                attachedFile = null;
+                document.getElementById('file-input').value = '';
+                document.getElementById('file-preview-container').classList.add('hidden');
+            };
+
+            // promptDeleteMessage moved inside DOMContentLoaded for correct scoping
+            const promptDeleteMessage = (e) => {
+                e.stopPropagation();
+                const btn = e.currentTarget;
+                messageToDelete = {
+                    id: btn.dataset.messageId,
+                    type: btn.dataset.messageType
+                };
+                deleteMessageModal.classList.remove('hidden');
+            };
+
+            // performDelete moved inside DOMContentLoaded for correct scoping
+            const performDelete = async (scope) => {
+                const result = await jsonApiCall('delete_message', 'POST', { 
+                    message_id: messageToDelete.id, 
+                    message_type: messageToDelete.type,
+                    scope: scope
+                });
+                if(result.success) {
+                    loadMessages();
+                } else {
+                    alert(`Error: ${result.message}`);
+                }
+                deleteMessageModal.classList.add('hidden');
+            };
+            
+            deleteForMeBtn.addEventListener('click', () => performDelete('me'));
+            deleteForEveryoneBtn.addEventListener('click', () => performDelete('everyone'));
+
+            // The loadMessages function remains here, within DOMContentLoaded
+            const loadMessages = async () => {
+                if (!selectedConversation) return;
+                const isGroup = selectedConversation.type === 'group';
+                const endpoint = isGroup ? `get_group_messages?group_uid=${selectedConversation.uid}` : `get_messages?selected_user_uid=${selectedConversation.uid}`;
+                // Now expects { pinned_messages: [], messages: [] } from PHP
+                const result = await jsonApiCall(endpoint);
+                const messagesArea = document.getElementById('messages-area');
+                const pinnedMessagesContainer = document.getElementById('pinned-messages-container');
+                const pinnedMessagesList = document.getElementById('pinned-messages-list');
+                
+                // Remove existing event listeners to prevent duplicates before reattaching
+                document.querySelectorAll('.reply-message-btn').forEach(btn => btn.removeEventListener('click', handleReplyButtonClick));
+                document.querySelectorAll('.delete-message-btn').forEach(btn => btn.removeEventListener('click', promptDeleteMessage));
+                document.querySelectorAll('.pin-message-btn').forEach(btn => btn.removeEventListener('click', handlePinMessage));
+
+
+                if (result.success) { // Check result.success first
+                    // Render pinned messages
+                    const top3PinnedForDisplay = result.pinned_messages ? result.pinned_messages.slice(Math.max(result.pinned_messages.length - 3, 0)) : []; // Get last 3 pinned
+                    
+                    if (top3PinnedForDisplay.length > 0) {
+                        pinnedMessagesList.innerHTML = top3PinnedForDisplay.map(msg => {
+                            const isSender = msg.sender_uid === currentUser.uid;
+                            const senderName = isGroup && !isSender ? `<strong>${msg.sender_name}:</strong> ` : '';
+                            const messageTextContent = msg.message_text ? msg.message_text.replace(/</g, "&lt;").replace(/>/g, "&gt;") : (msg.original_file_name ? `[File] ${msg.original_file_name}` : 'Deleted message');
+
+                            // Note: pin-message-btn here to unpin, so it should carry data-is-pinned="1"
+                            return `<div class="pinned-message-alert">
+                                        <span class="text-xs flex-grow overflow-hidden text-ellipsis whitespace-nowrap">
+                                            <i class="fas fa-thumbtack pin-icon mr-1"></i>
+                                            ${senderName}${messageTextContent}
+                                        </span>
+                                        <button data-message-id="${msg.id}" data-message-type="${isGroup ? 'group' : 'direct'}" data-is-pinned="1" title="Unpin Message" class="pin-message-btn unpin-btn"><i class="fas fa-times"></i></button>
+                                    </div>`;
+                        }).join('');
+                        pinnedMessagesContainer.classList.remove('hidden');
+                    } else {
+                        pinnedMessagesList.innerHTML = '';
+                        pinnedMessagesContainer.classList.add('hidden');
+                    }
+
+                    // Render regular messages
+                    messagesArea.innerHTML = (result.messages || []).map(msg => { // Use result.messages for regular chat
+                        const isSender = msg.sender_uid === currentUser.uid;
+                        const senderName = isGroup && !isSender ? `<p class="sender-name mb-1">${msg.sender_name}</p>` : '';
+                        
+                        let repliedToContent = '';
+                        if (msg.reply_to_message_id) { 
+                            const repliedSender = msg.replied_sender_name ? msg.replied_sender_name : 'Someone';
+                            let repliedMessageDisplay = '';
+
+                            if (msg.replied_text) {
+                                repliedMessageDisplay = msg.replied_text;
+                            } else if (msg.replied_original_file_name) { 
+                                repliedMessageDisplay = `[File] ${msg.replied_original_file_name}`;
+                            } else {
+                                repliedMessageDisplay = 'Deleted message'; 
+                            }
+
+                            repliedToContent = `
+                                <div class="reply-preview-container flex items-center gap-2 mb-1">
+                                    <p class="text-xs text-gray-200">Replying to ${repliedSender}:</p>
+                                    <p class="text-sm italic">${repliedMessageDisplay.substring(0, 70)}${repliedMessageDisplay.length > 70 ? '...' : ''}</p>
+                                </div>
+                            `;
+                        }
+
+                        return `<div class="flex mb-2 ${isSender ? 'justify-end' : 'justify-start'}">
+                                    <div class="relative message-bubble group max-w-md lg:max-w-lg ${isSender ? 'sender' : 'receiver'} ${isGroup ? 'group' : 'direct'}">
+                                       ${senderName}${repliedToContent}${renderMessageContent(msg, isSender, isGroup ? 'group' : 'direct')} </div>
+                                </div>`;
+                    }).join('');
+
+                    // Attach event listeners for delete and pin buttons
+                    document.querySelectorAll('.delete-message-btn').forEach(btn => btn.addEventListener('click', promptDeleteMessage));
+                    document.querySelectorAll('.pin-message-btn').forEach(btn => btn.addEventListener('click', handlePinMessage)); 
+                    document.querySelectorAll('.reply-message-btn').forEach(btn => btn.addEventListener('click', handleReplyButtonClick));
+
+
+                    if (atBottom) messagesArea.scrollTop = messagesArea.scrollHeight;
+                }
+            };
+            
+            const handleSendMessage = async e => {
+            e.preventDefault();
+            updateTypingStatus(false);
+            const input = document.getElementById('message-input');
+            const messageText = input.value.trim();
+            // Ensure replyToId is an integer or null
+            let replyToId = e.currentTarget.dataset.replyToId ? parseInt(e.currentTarget.dataset.replyToId) : null;
+            // If parseInt results in NaN (e.g., if dataset value was not a number), set it to null
+            if (isNaN(replyToId)) {
+                replyToId = null;
+            }
+
+            if (messageText === '' && !attachedFile) return;
+
+            let payload = {
+                message_text: messageText,
+                reply_to_message_id: replyToId // This will now be an integer or null
+            };
+
+            if (attachedFile) {
+                const formData = new FormData();
+                formData.append('file', attachedFile);
+                const uploadResult = await fileApiCall('upload', formData);
+                if (uploadResult.success) {
+                    payload.file_path = uploadResult.filePath;
+                    payload.original_file_name = uploadResult.originalFileName;
+                } else {
+                    alert(`File upload failed: ${uploadResult.message}`);
+                    return;
+                }
+            }
+
+            const isGroup = selectedConversation.type === 'group';
+            const endpoint = isGroup ? 'send_group_message' : 'send_message';
+            if(isGroup) {
+                payload.group_uid = selectedConversation.uid;
+            } else {
+                payload.receiver_uid = selectedConversation.uid;
+            }
+            
+            const result = await jsonApiCall(endpoint, 'POST', payload);
+            if (result.success) {
+                input.value = '';
+                attachedFile = null;
+                document.getElementById('file-input').value = '';
+                document.getElementById('file-preview-container').classList.add('hidden');
+                // Clear reply preview after sending message
+                document.getElementById('reply-preview-container').classList.add('hidden');
+                delete document.getElementById('sendMessageForm').dataset.replyToId; // Clear the dataset attribute
+                loadMessages();
+            }
+        };
+
+            const checkSession = async () => {
+                const result = await jsonApiCall('check_session');
+                if (result.success) showDashboard(result.user); else showAuth();
+            };
+            checkSession();
+        });
+    </script>
+    <script>
+    // Particle Constellation Background Effect
+    const particleCanvas = document.getElementById('particle-canvas');
+    const ctx = particleCanvas.getContext('2d');
+    let particles = [];
+    let mouse = { x: null, y: null, radius: 100 };
+
+    // Set canvas dimensions
+    const setCanvasDimensions = () => {
+        particleCanvas.width = window.innerWidth;
+        particleCanvas.height = window.innerHeight;
+    };
+    setCanvasDimensions(); // Initial set
+    window.addEventListener('resize', setCanvasDimensions); // Update on resize
+
+    // Mouse interaction
+    window.addEventListener('mousemove', (e) => {
+        mouse.x = e.x;
+        mouse.y = e.y;
+    });
+    window.addEventListener('mouseout', () => {
+        mouse.x = null;
+        mouse.y = null;
+    });
+
+    // Particle constructor
+    class Particle {
+        constructor(x, y, directionX, directionY, size, color) {
+            this.x = x;
+            this.y = y;
+            this.directionX = directionX;
+            this.directionY = directionY;
+            this.size = size;
+            this.color = color;
+        }
+
+        // Draw particle
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+            ctx.fillStyle = this.color;
+            ctx.fill();
+        }
+
+        // Update particle position
+        update() {
+            // Check if particle is still within canvas
+            if (this.x + this.size > particleCanvas.width || this.x - this.size < 0) {
+                this.directionX = -this.directionX;
+            }
+            if (this.y + this.size > particleCanvas.height || this.y - this.size < 0) {
+                this.directionY = -this.directionY;
+            }
+            this.x += this.directionX;
+            this.y += this.directionY;
+            // Mouse proximity interaction
+            if (mouse.x && mouse.y) {
+                let dx = mouse.x - this.x;
+                let dy = mouse.y - this.y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < mouse.radius + this.size) {
+                    if (mouse.x < this.x && this.x < particleCanvas.width - this.size * 10) {
+                        this.x += 10;
+                    }
+                    if (mouse.x > this.x && this.x > this.size * 10) {
+                        this.x -= 10;
+                    }
+                    if (mouse.y < this.y && this.y < particleCanvas.height - this.size * 10) {
+                        this.y += 10;
+                    }
+                    if (mouse.y > this.y && this.y > this.size * 10) {
+                        this.y -= 10;
+                    }
+                }
+            }
+            this.draw();
+        }
+    }
+
+    // Create particles array
+    const initParticles = () => {
+        particles = [];
+        let numberOfParticles = (particleCanvas.width * particleCanvas.height) / 9000; // Density
+        for (let i = 0; i < numberOfParticles; i++) {
+            let size = (Math.random() * 3) + 1; // Particle size between 1 and 4
+            let x = (Math.random() * ((innerWidth - size * 2) - (size * 2)) + size * 2);
+            let y = (Math.random() * ((innerHeight - size * 2) - (size * 2)) + size * 2);
+            let directionX = (Math.random() * 0.5) - 0.25; // Slower movement
+            let directionY = (Math.random() * 0.5) - 0.25;
+            let color = 'rgba(147, 197, 253, 0.6)'; // Light blue for particles
+
+            particles.push(new Particle(x, y, directionX, directionY, size, color));
+        }
+    };
+
+    // Connect particles
+    const connectParticles = () => {
+        let opacity = 1;
+        for (let a = 0; a < particles.length; a++) {
+            for (let b = a; b < particles.length; b++) {
+                let distance = ((particles[a].x - particles[b].x) * (particles[a].x - particles[b].x)) +
+                               ((particles[a].y - particles[b].y) * (particles[a].y - particles[b].y));
+                if (distance < (particleCanvas.width/7) * (particleCanvas.height/7)) { // Connection distance
+                    opacity = 1 - (distance / 20000); // Lines fade with distance
+                    ctx.strokeStyle = `rgba(147, 197, 253, ${opacity})`;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(particles[a].x, particles[a].y);
+                    ctx.lineTo(particles[b].x, particles[b].y);
+                    ctx.stroke();
+                }
+            }
+        }
+    };
+
+    // Animation loop
+    const animateParticles = () => {
+        requestAnimationFrame(animateParticles);
+        ctx.clearRect(0, 0, particleCanvas.width, particleCanvas.height); // Clear canvas
+
+        for (let i = 0; i < particles.length; i++) {
+            particles[i].update();
+        }
+        connectParticles();
+    };
+
+    initParticles();
+    animateParticles();
+</script>
+</body>
+</html>
